@@ -1,0 +1,435 @@
+<form theme="dark">
+  <label>Umbrella Search</label>
+  <description>Select various items in the drop-down menus below to filter results.</description>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="dropdown" token="user">
+      <label>Username</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <prefix>user="</prefix>
+      <suffix>"</suffix>
+      <initialValue>*</initialValue>
+      <fieldForLabel>user</fieldForLabel>
+      <fieldForValue>user</fieldForValue>
+      <search>
+        <query>index="opendns" sourcetype="opendns:dnslogs" $query$ $action$ $src_input$
+$identities$ $granular_identity_type$ $identity_type$ $category$
+| fields user
+| dedup user
+| table user
+| sort user</query>
+        <earliest>$time.earliest$</earliest>
+        <latest>$time.latest$</latest>
+      </search>
+    </input>
+    <input type="multiselect" token="src_input">
+      <label>Source IP</label>
+      <delimiter> OR </delimiter>
+      <fieldForLabel>src</fieldForLabel>
+      <fieldForValue>src</fieldForValue>
+      <search>
+        <query>index="opendns" sourcetype="opendns:dnslogs"  $query$ $action$ $user$ $category$
+| fields src
+| dedup src
+| table src
+| sort src</query>
+        <earliest>$time.earliest$</earliest>
+        <latest>$time.latest$</latest>
+      </search>
+      <valuePrefix>src="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <choice value="*">All</choice>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="multiselect" token="action">
+      <label>Action</label>
+      <choice value="*">All</choice>
+      <choice value="allowed">Allowed</choice>
+      <choice value="blocked">Blocked</choice>
+      <prefix>(</prefix>
+      <valuePrefix>action="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+      <fieldForLabel>action</fieldForLabel>
+      <fieldForValue>action</fieldForValue>
+      <search>
+        <query>index=opendns  $query$ $src_input$
+$identities$ $granular_identity_type$ $identity_type$ $category$</query>
+        <earliest>$time.earliest$</earliest>
+        <latest>$time.latest$</latest>
+      </search>
+      <default>*</default>
+      <suffix>)</suffix>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="query">
+      <label>DNS Query</label>
+      <fieldForLabel>query</fieldForLabel>
+      <fieldForValue>query</fieldForValue>
+      <search>
+        <query>index="opendns" sourcetype="opendns:dnslogs" query!=*.arpa $src_input$ $action$ $user$  $category$
+| fields query
+| dedup query
+| table query
+| sort query</query>
+        <earliest>$time.earliest$</earliest>
+        <latest>$time.latest$</latest>
+      </search>
+      <choice value="*">All</choice>
+      <prefix>query="</prefix>
+      <suffix>"</suffix>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="identities">
+      <label>Identities</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <prefix>identities="</prefix>
+      <suffix>"</suffix>
+      <initialValue>*</initialValue>
+      <fieldForLabel>identities</fieldForLabel>
+      <fieldForValue>identities</fieldForValue>
+      <search>
+        <query>index="opendns" sourcetype="opendns:dnslogs" query!=*.arpa $query$ $src_input$ $action$ $user$ $identity_type$ $granular_identity_type$ $category$
+| fields identities 
+| dedup identities
+| table identities
+| sort identities</query>
+        <earliest>$time.earliest$</earliest>
+        <latest>$time.latest$</latest>
+      </search>
+    </input>
+    <input type="dropdown" token="identity_type">
+      <label>Identity Type</label>
+      <choice value="*">All</choice>
+      <prefix>identity_type="</prefix>
+      <suffix>"</suffix>
+      <fieldForLabel>identity_type</fieldForLabel>
+      <fieldForValue>identity_type</fieldForValue>
+      <search>
+        <query>index="opendns" sourcetype="opendns:dnslogs" query!=*.arpa $src_input$ $action$ $user$ $identities$ $granular_identity_type$ $category$ $query$
+| fields identity_type
+| dedup identity_type
+| table identity_type
+| sort identity_type</query>
+        <earliest>$time.earliest$</earliest>
+        <latest>$time.latest$</latest>
+      </search>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="granular_identity_type">
+      <label>Sub-Identity Type</label>
+      <fieldForLabel>granular_identity_type</fieldForLabel>
+      <fieldForValue>granular_identity_type</fieldForValue>
+      <choice value="*">All</choice>
+      <prefix>granular_identity_type="</prefix>
+      <suffix>"</suffix>
+      <search>
+        <query>index="opendns" sourcetype="opendns:dnslogs" query!=*.arpa $src_input$ $action$ $user$ $identity_type$ $identities$ $category$ $query$
+| fields granular_identity_type
+| dedup granular_identity_type
+| table granular_identity_type
+| sort granular_identity_type</query>
+        <earliest>$time.earliest$</earliest>
+        <latest>$time.latest$</latest>
+      </search>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="multiselect" token="category">
+      <label>DNS Category</label>
+      <choice value="*">All</choice>
+      <fieldForLabel>category</fieldForLabel>
+      <fieldForValue>category</fieldForValue>
+      <search>
+        <query>index="opendns" sourcetype="opendns:dnslogs" query!=*.arpa $src_input$ $action$ $user$ $identities$ $granular_identity_type$ $query$
+| fields category
+| stats count by category
+| table category
+| sort category</query>
+        <earliest>$time.earliest$</earliest>
+        <latest>$time.latest$</latest>
+      </search>
+      <default>*</default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <initialValue>*</initialValue>
+      <valuePrefix>category="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+    </input>
+    <input type="time" token="time">
+      <label>Time Selector</label>
+      <default>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Client DNS Search</title>
+      <table>
+        <search>
+          <query>index="opendns" sourcetype="opendns:dnslogs" $user$ $src_input$  $action$ (query!=*.arpa AND $query$) $category$
+| fields user, src, query, category, blocked_category, action, identities, identity_type, granular_identity_type
+|  table _time, user, src, query, category, blocked_category, action, identities, identity_type, granular_identity_type
+| rename user as Username, src as "Source IP" query as "DNS Query" category as "DNS Category" blocked_category as "Blocked Category" action as Action, identities as "Identities" identity_type as "Identity Type", granular_identity_type as "Granular Identity Type"</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <format type="color" field="src">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="name">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="answer">
+          <colorPalette type="map">{"BLOCKED":#3C444D,"NODATA-IPv6":#F8BE34,"&lt;CNAME&gt;":#5A4575}</colorPalette>
+        </format>
+        <format type="color" field="src">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="query">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="action">
+          <colorPalette type="map">{"allowed":#53A051,"blocked":#DC4E41}</colorPalette>
+        </format>
+        <format type="color" field="user">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="identities">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="identity_type">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="granular_identity_type">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="Username">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="Source IP">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="DNS Query">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="DNS Category">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="Action">
+          <colorPalette type="map">{"allowed":#53A051,"blocked":#DC4E41}</colorPalette>
+        </format>
+        <format type="color" field="Identity Type">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="Granular Identity Type">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>DNS Request Summary</title>
+      <table>
+        <search>
+          <query>index="opendns" sourcetype="opendns:dnslogs" $user$ $src_input$ $action$ query!=*.arpa AND $query$
+| fields src, query, category, action
+| stats count by src, query, category, action
+| sort -count
+| rename src as "Source IP" query as "DNS Query" category as "DNS Category"  action as Action</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <format type="color" field="from">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="Query Type">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="sharedCategory"></scale>
+        </format>
+        <format type="color" field="count">
+          <colorPalette type="minMidMax" maxColor="#006D9C" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="action">
+          <colorPalette type="map">{"blocked":#DC4E41,"allowed":#53A051}</colorPalette>
+        </format>
+        <format type="color" field="Action">
+          <colorPalette type="map">{"allowed":#53A051,"blocked":#DC4E41}</colorPalette>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <title>Umbrella User Profile</title>
+      <table>
+        <search>
+          <query>index="opendns" sourcetype="opendns:dnslogs" query!=*.arpa $src_input$ $action$ $user$ $identity_type$ $granular_identity_type$ $query$
+| fields identities 
+| dedup identities
+| table identities
+| sort identities</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Top 25 DNS Requests</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>index="opendns" sourcetype="opendns:dnslogs" query!=*.arpa$src_input$ $action$ $query$ $user$ 
+| eval user_ip = user." - ".src
+| stats count by user_ip, query
+| sort -count
+| head 25</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="height">272</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="sankey_diagram_app.sankey_diagram.colorMode">categorical</option>
+        <option name="sankey_diagram_app.sankey_diagram.maxColor">#3fc77a</option>
+        <option name="sankey_diagram_app.sankey_diagram.minColor">#d93f3c</option>
+        <option name="sankey_diagram_app.sankey_diagram.numOfBins">6</option>
+        <option name="sankey_diagram_app.sankey_diagram.showBackwards">false</option>
+        <option name="sankey_diagram_app.sankey_diagram.showLabels">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showLegend">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showSelf">false</option>
+        <option name="sankey_diagram_app.sankey_diagram.showTooltip">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.styleBackwards">false</option>
+        <option name="sankey_diagram_app.sankey_diagram.useColors">true</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Top 10 Allowed DNS Queries</title>
+        <search>
+          <query>index="opendns" sourcetype="opendns:dnslogs" query!=*.arpa action=allowed
+query!=*.arpa $src_input$ $user$ $identity_type$ $granular_identity_type$
+| chart limit=0 count over query by user
+| addtotals
+| sort 10 -Total
+| fields - Total
+| untable query src count
+| xyseries src query count
+| addtotals
+| sort 10 -Total
+| fields - Total
+| untable src query count
+| xyseries query src count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Top 10 Blocked DNS Queries</title>
+        <search>
+          <query>index="opendns" sourcetype="opendns:dnslogs" query!=*.arpa action=blocked query!=*.arpa $src_input$ $user$ $identity_type$ $granular_identity_type$
+| chart limit=0 count over query by user
+| addtotals
+| sort 10 -Total
+| fields - Total
+| untable query src count
+| xyseries src query count
+| addtotals
+| sort 10 -Total
+| fields - Total
+| untable src query count
+| xyseries query src count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.axisLabelsY.majorUnit">1</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Blocked Category Seach - This Report is independent from the Drop-Down menus above</title>
+      <input type="dropdown" token="blocked_category" searchWhenChanged="true">
+        <label>Blocked Category</label>
+        <fieldForLabel>blocked_category</fieldForLabel>
+        <fieldForValue>blocked_category</fieldForValue>
+        <search>
+          <query>index="opendns" sourcetype="opendns:dnslogs" 
+| fields blocked_category
+| dedup blocked_category
+| table  blocked_category
+| sort  blocked_category</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <choice value="*">All</choice>
+        <prefix>blocked_category="</prefix>
+        <suffix>"</suffix>
+        <default>*</default>
+        <initialValue>*</initialValue>
+      </input>
+      <table>
+        <title>Select Category Above</title>
+        <search>
+          <query>index="opendns" sourcetype="opendns:dnslogs" $blocked_category$
+| fields src, user, query, category,identities, granular_identity_type
+| eval user_ip = user." - ".src
+| stats count by user_ip, identities, granular_identity_type, query, category
+| rename user_ip as "Username &amp; IP", query as "DNS Query" category as "DNS Category" blocked_category as "Blocked Category"  identities as "Identities"  granular_identity_type as "Granular Identity Type"</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>
