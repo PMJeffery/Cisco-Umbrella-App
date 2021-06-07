@@ -1,0 +1,248 @@
+<form theme="dark">
+  <label>Umbrella Executive Dashboard</label>
+  <fieldset submitButton="false">
+    <input type="time" token="time">
+      <label>Time Picker</label>
+      <default>
+        <earliest>@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Allowed DNS Queries</title>
+        <search>
+          <query>`umbrella_index` sourcetype="opendns:dnslogs" query!=*.arpa action=allowed
+| fields action
+| timechart count by action</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">220</option>
+        <option name="rangeColors">["0x53a051","0x53a051"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="trendInterval">-1h</option>
+        <option name="underLabel">Allowed Queries</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <chart>
+        <title>Allow vs. Blocked DNS Queries</title>
+        <search>
+          <query>`umbrella_index` sourcetype="opendns:dnslogs" query!=*.arpa
+| fields action
+| stats count by action</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>DNS Queries over Time</title>
+        <search>
+          <query>`umbrella_index` sourcetype="opendns:dnslogs" query!=*.arpa
+| timechart count by action</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <single>
+        <title>Blocked DNS Queries</title>
+        <search>
+          <query>`umbrella_index` sourcetype="opendns:dnslogs" query!=*.arpa action=blocked
+| fields action
+| timechart count by action</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="drilldown">none</option>
+        <option name="height">227</option>
+        <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="trendInterval">-1h</option>
+        <option name="underLabel">Blocked Queries</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Top 10 Allowed Queries by Username</title>
+        <search>
+          <query>`umbrella_index` sourcetype="opendns:dnslogs" query!=*.arpa action=allowed
+| chart limit=0 count over query by user
+| addtotals
+| sort 10 -Total
+| fields - Total
+| untable query src count
+| xyseries src query count
+| addtotals
+| sort 10 -Total
+| fields - Total
+| untable src query count
+| xyseries query src count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Top 10 Blocked Queries by User</title>
+        <search>
+          <query>`umbrella_index` sourcetype="opendns:dnslogs" query!=*.arpa action=blocked
+| chart limit=0 count over query by user
+| addtotals
+| sort 10 -Total
+| fields - Total
+| untable query src count
+| xyseries src query count
+| addtotals
+| sort 10 -Total
+| fields - Total
+| untable src query count
+| xyseries query src count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.axisLabelsY.majorUnit">1</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>(Allowed) - Count by Category</title>
+        <search>
+          <query>`umbrella_index` sourcetype="opendns:dnslogs" action=allowed
+| fields category action
+| chart count by category limit=0</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisY.scale">log</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>(Blocked) Count by Category</title>
+        <search>
+          <query>`umbrella_index` sourcetype="opendns:dnslogs" action=blocked
+| fields category action
+| chart count by category limit=0</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisY.scale">log</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Top 10 Allowed Queries</title>
+        <search>
+          <query>`umbrella_index` sourcetype="opendns:dnslogs" query!=*.arpa action=allowed
+| fields query
+| stats count by query
+| rename query as Query
+| sort 10 -count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="count">
+          <colorPalette type="minMidMax" maxColor="#53A051" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Top 10 Blocked Queries</title>
+        <search>
+          <query>`umbrella_index` sourcetype="opendns:dnslogs" query!=*.arpa action=blocked
+| fields query
+| stats count by query
+| rename query as Query
+| sort 10 -count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <format type="color" field="count">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Categories by Actions</title>
+        <search>
+          <query>`umbrella_index` sourcetype="opendns:dnslogs" query!=*.arpa
+| stats count by action, category
+| rename action as Action, category as Category</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <format type="color" field="count">
+          <colorPalette type="minMidMax" maxColor="#006D9C" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <title>Sankey - Categories by Actions</title>
+        <search>
+          <query>`umbrella_index` sourcetype="opendns:dnslogs" query!=*.arpa
+| stats count by action, category</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </viz>
+    </panel>
+  </row>
+</form>
